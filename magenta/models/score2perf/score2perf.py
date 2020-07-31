@@ -21,7 +21,6 @@ from __future__ import print_function
 import functools
 import itertools
 
-from magenta.models.score2perf import datagen_beam
 from magenta.models.score2perf import modalities
 from magenta.models.score2perf import music_encoders
 from note_seq import chord_symbols_lib
@@ -32,9 +31,11 @@ from tensor2tensor.models import transformer
 from tensor2tensor.utils import registry
 import tensorflow.compat.v1 as tf
 
+# Instead of importing datagen_beam (only needed for datagen) here, it is
+# imported inline when needed to avoid the transitive apache_beam dependency
+# when doing training or inference.
 
 # TODO(iansimon): figure out the best way not to hard-code these constants
-
 NUM_VELOCITY_BINS = 32
 STEPS_PER_SECOND = 100
 MIN_PITCH = 21
@@ -117,6 +118,8 @@ class Score2PerfProblem(problem.Problem):
 
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
     del task_id
+
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
 
     def augment_note_sequence(ns, stretch_factor, transpose_amount):
       """Augment a NoteSequence by time stretch and pitch transposition."""
@@ -279,6 +282,8 @@ class ConditionalScore2PerfProblem(Score2PerfProblem):
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
     del task_id
 
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
+
     def augment_note_sequence(ns, stretch_factor, transpose_amount):
       """Augment a NoteSequence by time stretch and pitch transposition."""
       augmented_ns = sequences_lib.stretch_note_sequence(
@@ -347,6 +352,8 @@ class ConditionalMelodyScore2PerfProblem(Score2PerfProblem):
 
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
     del task_id
+
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
 
     def augment_note_sequence(ns, stretch_factor, transpose_amount):
       """Augment a NoteSequence by time stretch and pitch transposition."""
@@ -443,6 +450,8 @@ class ConditionalMelodyNoisyScore2PerfProblem(
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
     del task_id
 
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
+
     def augment_note_sequence(ns, stretch_factor, transpose_amount):
       """Augment a NoteSequence by time stretch and pitch transposition."""
       augmented_ns = sequences_lib.stretch_note_sequence(
@@ -531,6 +540,9 @@ class Score2PerfMaestroLanguageUncroppedAug(Score2PerfProblem):
 
   def performances_input_transform(self, tmp_dir):
     del tmp_dir
+
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
+
     return dict(
         (split_name, datagen_beam.ReadNoteSequencesFromTFRecord(tfrecord_path))
         for split_name, tfrecord_path in MAESTRO_TFRECORD_PATHS.items())
@@ -576,6 +588,9 @@ class Score2PerfMaestroAbsMel2Perf5sTo30sAug10x(AbsoluteMelody2PerfProblem):
 
   def performances_input_transform(self, tmp_dir):
     del tmp_dir
+
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
+
     return dict(
         (split_name, datagen_beam.ReadNoteSequencesFromTFRecord(tfrecord_path))
         for split_name, tfrecord_path in MAESTRO_TFRECORD_PATHS.items())
@@ -617,6 +632,9 @@ class Score2PerfMaestroPerfConditionalAug10x(ConditionalScore2PerfProblem):
 
   def performances_input_transform(self, tmp_dir):
     del tmp_dir
+
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
+
     return dict(
         (split_name, datagen_beam.ReadNoteSequencesFromTFRecord(tfrecord_path))
         for split_name, tfrecord_path in MAESTRO_TFRECORD_PATHS.items())
@@ -666,6 +684,9 @@ class Score2PerfMaestroMelPerfConditionalAug10x(
 
   def performances_input_transform(self, tmp_dir):
     del tmp_dir
+
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
+
     return dict(
         (split_name, datagen_beam.ReadNoteSequencesFromTFRecord(tfrecord_path))
         for split_name, tfrecord_path in MAESTRO_TFRECORD_PATHS.items())
@@ -717,6 +738,9 @@ class Score2PerfMaestroMelPerfConditionalNoisy10x(
 
   def performances_input_transform(self, tmp_dir):
     del tmp_dir
+
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top
+
     return dict(
         (split_name, datagen_beam.ReadNoteSequencesFromTFRecord(tfrecord_path))
         for split_name, tfrecord_path in MAESTRO_TFRECORD_PATHS.items())
